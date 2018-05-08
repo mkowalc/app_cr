@@ -4,7 +4,7 @@ import database
 #todo
 #dodac interfejs/ABC dla klas JwtAuth i AdminJwtAuth
 
-class JwtAuth(object):
+class AdminJwtAuth(object):
 
     def __init__(self, db, auth_header, secret_key):
         self.db = db
@@ -39,7 +39,7 @@ class JwtAuth(object):
 
                 exists = self.db.session.query(
                     self.db.exists().where(
-                        (database.TokenTable.user_token == decoded['user_token']) and (database.TokenTable.id == decoded['id']))
+                        (database.AdminTokenTable.admin_token == decoded['admin_token']) and (database.AdminTokenTable.id == decoded['id']))
                     ).scalar()
 
                 if exists:

@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import database as database
 import jwt
 import jwt_auth
+import admin_jwt_auth
 import requests
 import rand
 
@@ -32,6 +33,7 @@ def return_jwt():
         "id": user_id,
         "user_token": user_token,
     }
+    print(payload)
     jwt_token = jwt.encode(payload, secret_key, algorithm='HS256')
     return jsonify({'token': str(jwt_token)}), 200
 
@@ -40,21 +42,9 @@ def return_jwt():
 @cross_origin(origin=ORIGIN_VAR, headers=['Content- Type'])
 def add_car_record():
     auth_header = request.headers.get('Authorization')
-    jwt_auth_test = jwt_auth.JwtAuth(auth_header, secret_key)
-    token = jwt_auth_test.get_token()
-    decoded_payload = jwt_auth_test.decode_auth_token(token)
-    exists_id = False
-    exists_token = False
-    if not isinstance(decoded_payload, str):
-        exists_id = db.session.query(
-            db.session.query(database.TokenTable).filter_by(
-                id=decoded_payload['id']).exists()
-        ).scalar()
-        exists_token = db.session.query(
-            db.session.query(database.TokenTable).filter_by(
-                user_token=decoded_payload['user_token']).exists()
-        ).scalar()
-    if exists_id and exists_token:
+    jwt_auth_test = jwt_auth.JwtAuth(db, auth_header, secret_key)
+    is_jwt_correct = jwt_auth_test.verify_jwt()
+    if is_jwt_correct:
         kwargs = requests.get_car_data()
         car_data = database.CarsDatabase(**kwargs)
         db.session.add(car_data)
@@ -64,25 +54,13 @@ def add_car_record():
         return jsonify({'message': 'error'}), 401
 
 
-@app.route('/secreturl', methods=['POST'])
+@app.route('/secreturl', methods=['GET'])
 @cross_origin(origin=ORIGIN_VAR, headers=['Content- Type'])
 def get_cars_records():
     auth_header = request.headers.get('Authorization')
-    jwt_auth_test = jwt_auth.JwtAuth(auth_header, admin_secret_key)
-    token = jwt_auth_test.get_token()
-    decoded_payload = jwt_auth_test.decode_auth_token(token)
-    exists_id = False
-    exists_token = False
-    if not isinstance(decoded_payload, str):
-        exists_id = db.session.query(
-            db.session.query(database.AdminTokenTable).filter_by(
-                id=decoded_payload['id']).exists()
-        ).scalar()
-        exists_token = db.session.query(
-            db.session.query(database.AdminTokenTable).filter_by(
-                admin_token=decoded_payload['admin_token']).exists()
-        ).scalar()
-    if exists_id and exists_token:
+    jwt_auth_admin = admin_jwt_auth.AdminJwtAuth(db, auth_header, admin_secret_key)
+    is_jwt_correct = jwt_auth_admin.verify_jwt()
+    if is_jwt_correct:
         db_records = database.CarsDatabase.query.all()
         data_tup = []
 

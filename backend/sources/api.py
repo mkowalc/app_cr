@@ -3,7 +3,7 @@ from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 import database as database
 import jwt
-import jwt_auth
+import user_jwt_auth
 import admin_jwt_auth
 import requests
 import rand
@@ -42,8 +42,8 @@ def return_jwt():
 @cross_origin(origin=ORIGIN_VAR, headers=['Content- Type'])
 def add_car_record():
     auth_header = request.headers.get('Authorization')
-    jwt_auth_test = jwt_auth.JwtAuth(db, auth_header, secret_key)
-    is_jwt_correct = jwt_auth_test.verify_jwt()
+    jwt_auth_test = user_jwt_auth.UserJwtAuth(db, auth_header, secret_key)
+    is_jwt_correct = jwt_auth_test.verify_token()
     if is_jwt_correct:
         kwargs = requests.get_car_data()
         car_data = database.CarsDatabase(**kwargs)
@@ -59,7 +59,7 @@ def add_car_record():
 def get_cars_records():
     auth_header = request.headers.get('Authorization')
     jwt_auth_admin = admin_jwt_auth.AdminJwtAuth(db, auth_header, admin_secret_key)
-    is_jwt_correct = jwt_auth_admin.verify_jwt()
+    is_jwt_correct = jwt_auth_admin.verify_token()
     if is_jwt_correct:
         db_records = database.CarsDatabase.query.all()
         data_tup = []

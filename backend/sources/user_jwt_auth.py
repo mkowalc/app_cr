@@ -1,9 +1,8 @@
-import jwt
-import database
 import abstract_jwt_auth
+import database
 
 
-class AdminJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
+class UserJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
 
     def decode_token(self, token):
         return super().decode_token(token)
@@ -21,7 +20,7 @@ class AdminJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
 
                 exists = self.db.session.query(
                     self.db.exists().where(
-                        (database.AdminTokenTable.admin_token == decoded['admin_token']) and (database.AdminTokenTable.id == decoded['id']))
+                        (database.TokenTable.user_token == decoded['user_token']) and (database.TokenTable.id == decoded['id']))
                     ).scalar()
 
                 if exists:
@@ -29,7 +28,9 @@ class AdminJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
 
                 else:
                     return False
+
             else:
                 return False
+
         else:
             return False

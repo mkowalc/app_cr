@@ -28,7 +28,11 @@ def return_jwt():
               'user_token': user_token}
     new_usr_payload = database.TokenTable(**kwargs)
     db.session.add(new_usr_payload)
-    db.session.commit()
+    try:
+        db.session.commit()
+    finally:
+        print("closing")
+        db.session.close()
     payload = {
         "id": user_id,
         "user_token": user_token,
@@ -48,7 +52,11 @@ def add_car_record():
         kwargs = requests.get_car_data()
         car_data = database.CarsDatabase(**kwargs)
         db.session.add(car_data)
-        db.session.commit()
+        try:
+            db.session.commit()
+        finally:
+            print("closing car session")
+            db.session.close()
         return jsonify({'message': 'successful POST send'}), 200
     else:
         return jsonify({'message': 'error'}), 401
@@ -83,21 +91,6 @@ def get_cars_records():
     else:
         return jsonify({'message': 'error'}), 401
 
-
-# @app.route('/add_user', methods=['POST'])
-# @cross_origin(origin=ORIGIN_VAR, headers=['Content- Type'])
-# def add_user():
-#     if request.method == 'POST':
-#         new_user = {
-#             'username': request.json['username'],
-#             'password': request.json['password']
-#         }
-#         new_username = new_user['username']
-#         new_password = new_user['password']
-#         rec_object = database.UsersTable(str(new_username), str(new_password))
-#         db.session.add(rec_object)
-#         db.session.commit()
-#         return jsonify({'message': 'successful POST send'}), 200
 
 
 

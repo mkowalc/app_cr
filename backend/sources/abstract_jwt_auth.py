@@ -29,5 +29,6 @@ class AbstractJwtAuth(ABC):
             token = ''
             return token
 
+    @abstractmethod
     def verify_token(self):
         pass

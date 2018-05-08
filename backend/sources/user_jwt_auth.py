@@ -22,8 +22,14 @@ class UserJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
                     self.db.exists().where(
                         (database.TokenTable.user_token == decoded['user_token']) and (database.TokenTable.id == decoded['id']))
                     ).scalar()
+                self.db.session.close()
 
                 if exists:
+                    #todo
+                    # nie dziala ten delete
+                    database.TokenTable.query.filter(database.TokenTable.id == decoded['id']).delete()
+                    self.db.session.close()
+
                     return True
 
                 else:

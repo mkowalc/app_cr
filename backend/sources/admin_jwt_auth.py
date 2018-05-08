@@ -23,6 +23,7 @@ class AdminJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
                     self.db.exists().where(
                         (database.AdminTokenTable.admin_token == decoded['admin_token']) and (database.AdminTokenTable.id == decoded['id']))
                     ).scalar()
+                self.db.session.close()
 
                 if exists:
                     return True

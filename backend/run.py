@@ -2,7 +2,7 @@ from sources.api import app
 
 
 if __name__ == '__main__':
-    db_localisation = 'sqlite:////home/mkow/Desktop/app_portf/app_backend/backend/sources/db/db_app.db'
+    db_localisation = 'mysql+pymysql://app-user:PASSWORD@localhost/db_app'
     app.config['CORS_HEADERS'] = 'Content-Type'
     app.config['SECRET_KEY'] = 'super-secret'
     app.config['SQLALCHEMY_DATABASE_URI'] = db_localisation

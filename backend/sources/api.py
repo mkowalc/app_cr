@@ -27,12 +27,10 @@ def return_jwt():
     kwargs = {'id': user_id,
               'user_token': user_token}
     new_usr_payload = database.TokenTable(**kwargs)
-    db.session.add(new_usr_payload)
-    try:
-        db.session.commit()
-    finally:
-        print("closing")
-        db.session.close()
+    local_new_usr_payload = db.session.merge(new_usr_payload)
+    db.session.add(local_new_usr_payload)
+    db.session.commit()
+    db.session.close()
     payload = {
         "id": user_id,
         "user_token": user_token,
@@ -51,12 +49,20 @@ def add_car_record():
     if is_jwt_correct:
         kwargs = requests.get_car_data()
         car_data = database.CarsDatabase(**kwargs)
-        db.session.add(car_data)
-        try:
-            db.session.commit()
-        finally:
-            print("closing car session")
-            db.session.close()
+        local_car_data = db.session.merge(car_data)
+        db.session.add(local_car_data)
+        print(local_car_data)
+        db.session.commit()
+        db.session.close()
+        token = jwt_auth_test.get_token()
+        decoded_token = jwt_auth_test.decode_token(token)
+        print(decoded_token)
+        jwt_token = database.TokenTable.query.filter(database.TokenTable.id == decoded_token['id']).all()
+        print(jwt_token[0])
+        dupa = db.session.merge(jwt_token[0])
+        db.session.delete(dupa)
+        db.session.commit()
+        db.session.close()
         return jsonify({'message': 'successful POST send'}), 200
     else:
         return jsonify({'message': 'error'}), 401

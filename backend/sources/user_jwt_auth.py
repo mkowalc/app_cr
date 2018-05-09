@@ -26,9 +26,6 @@ class UserJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
 
                 if exists:
                     #todo
-                    # nie dziala ten delete
-                    database.TokenTable.query.filter(database.TokenTable.id == decoded['id']).delete()
-                    self.db.session.close()
 
                     return True
 
@@ -40,3 +37,20 @@ class UserJwtAuth(abstract_jwt_auth.AbstractJwtAuth):
 
         else:
             return False
+
+    def delete_token(self):
+
+        if self.auth_header:
+            token = self.get_token()
+            print("test1")
+
+        if token:
+            print("Test2")
+            decoded = self.decode_token(str(token))
+            if not isinstance(decoded, str):
+                self.db.session.close()
+                jwt_token = database.TokenTable.query.filter(database.TokenTable.id == decoded['id']).first()
+                print(jwt_token)
+                self.db.session.delete(jwt_token)
+                self.db.session.commit()
+                self.db.session.close()

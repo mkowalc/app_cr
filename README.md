@@ -1,1 +1,1 @@
-zrobie kiedys to redmi :<
+.
